@@ -3,35 +3,58 @@ import axios from 'axios';
 import {Link} from 'react-router-dom';
 import Table from 'react-bootstrap/Table';
 import Button from 'react-bootstrap/Button';
-// import  './Home.css'
+import  './Home.css';
+import Topbar from "../topbar/Topbar";
+import { getAuthUser } from "../../helper/Storage";
 
 
 
-
-function Home_sup() {
-    const [data, setData]= useState([]);
+const Home_sup =()=> {
+     const auth = getAuthUser();
+     const [data, setData]= useState({
+      loading: true,
+      results: [],
+      err: null,
+      reload: 0,
+     });
+    // const [data, setData]= useState({
+    //     loading: true,
+    //     results: [],
+    //     err: null,
+    //     reload: 0,
+    //   });
+   
     useEffect(()=>{
-        axios.get('http://localhost:8081/homess')
-        .then(res => setData(res.data))
-        .catch(err => console.log(err))
+        setData({ ...data, loading: true });
+        axios.get('http://localhost:8081/user/getuser')
+        .then((res) =>{
+            setData({...data, results: res.data, loading: false, err: null });
+        }) 
+        .catch((err) => {
+            setData({
+            ...data,
+            loading: false,
+            err: " something went wrong, please try again later ! ",
+          });
+        });
+},[data.reload])
 
-},[])
-
-  const handleDelete = async (id)=> {
-     await axios.delete('http://localhost:8081/delete/'+id)
-     .then(res => {
-       window.location.reload();
+  const handleDelete =  (id)=> {
+      axios.delete('http://localhost:8081/user/delete/'+id ,{
+        headers: {
+            token: auth.token,
+          },})
+     .then((res) => {
+        setData({ ...data, reload: data.reload + 1 });
     })
-         .catch(err => console.log(err))
+         .catch((err )=> {})
 
-
- }
-
-
-
-
+ };
     return (
-      <div className="d-flex vh-100 bg-dark justify-content-center align-items-center">
+        <div>
+        <Topbar/>
+      <div className="d-flex vh-100  justify-content-center align-items-center"
+      style={{backgroundColor:"#f7eede"}}>
         <div className="w-70 bg-white rounded p-3">
        
             <h2> Manage Supervisore</h2>
@@ -47,38 +70,50 @@ function Home_sup() {
                 <thead>
                     <tr >
                         <th>id</th>
-                        <th> Email</th>
-                        <th> Passward</th>
+                        <th> Name</th>
+                        <th> Email</th> 
                         <th> Phone</th>
                         <th> Status</th>
-                        <th> type</th>
-                        <th> Name</th>
                         <th> actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {data.map(( users, index) =>{
-                        return<tr key={index}>
-                            <td> {users.id}</td>
-                            <td> {users.email}</td>
-                            <td> {users.password}</td>
-                            <td> {users.phone}</td>
-                            <td> {users.status}</td>
-                            <td> {users.type}</td>
-                            <td> {users.name}</td>
-                            <td> {users.actions}</td>
-                            <td>
-                                <Link to={`/read/${users.id}`}> <Button variant="dark" className="m-1">Show</Button></Link>
-                                <Link to={`/update/${users.id}`} ><Button variant="dark" className="m-1">update</Button> </Link>
-                                 <Button  onClick={ ()=> handleDelete(users.id)} variant="dark">Delete</Button>  
-                            </td>
-                        </tr>
-                    })}
+                   
+
+                {data.results.map((user) => (
+  <tr key={user.id}>
+    <td>{user.id}</td>
+    <td>{user.name}</td>
+    <td>{user.email}</td>
+    <td>{user.phone}</td>
+    <td>{user.status}</td>
+    <td>
+      <Link to={`/read/${user.id}`}>
+        <Button variant="dark" className="m-1">
+          Show
+        </Button>
+      </Link>
+      <Link to={`/update/${user.id}`}>
+        <Button variant="dark" className="m-1">
+          Update
+        </Button>
+      </Link>
+      <button
+        className="btn btn-sm btn-danger"
+        onClick={(e) => {
+          handleDelete(user.id);
+        }}
+      >
+        Delete
+      </button>
+    </td>
+  </tr>
+))}
                 </tbody>
             </Table>
         </div>
         </div>
-        
+        </div>
 
       
     );
