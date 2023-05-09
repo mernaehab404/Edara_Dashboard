@@ -4,26 +4,28 @@ import { useParams, useNavigate } from "react-router-dom";
 import axios from 'axios';
 import Form from 'react-bootstrap/Form';
 import  Button  from "react-bootstrap/Button";
+import Topbar from "../topbar/Topbar";
+
 import  './update_sup.css'
 
 function Update_sup(){
 
     const{id}= useParams();
 
-    
+    const [name, setName] = useState([id].name);
     const [email, setEmail] = useState([id].email);
-    const [password, setPassword] = useState([id].password);
+    // const [password, setPassword] = useState([id].password);
     const [phone, setPhone] = useState([id].phone);
     const [status, setStatus] = useState([id].status);
     const [type, setType] = useState([id].type);
-    const [name, setName] = useState([id].name);
+  
     
     const navigate= useNavigate()
    
-    function handleSubmit(event) {
-        event.preventDefault();
+    function handleSubmit(e) {
+        e.preventDefault();
         axios
-          .put('http://localhost:8081/update/' +id, {  email ,password ,phone,status,type, name })
+          .put('http://localhost:8081/user/' +id, { name , email ,phone,status,type})
           .then((res) => {
             console.log(res.data);
             navigate('/homess');
@@ -35,6 +37,8 @@ function Update_sup(){
 
 
     return(
+      <div> 
+    <Topbar/>
       <div className="d-flex vh-100 bg-dark justify-content-center align-items-center">
           <div className="w-50 bg-white rounded p-3">
         
@@ -44,44 +48,64 @@ function Update_sup(){
                 <Form.Group className="mb-3" controlId="formBasicName">
         <Form.Label>Name</Form.Label>
         <Form.Control type="text" placeholder="Enter name"
-        className="form-control" 
-        onChange={e=> setName(e.target.value)} />
+        className="form-control" value={name}
+        onChange={(e)=> setName(e.target.value)} />
       </Form.Group>         
 
 
       <Form.Group className="mb-3" controlId="formBasicEmail">
         <Form.Label>Email address</Form.Label>
         <Form.Control type="email" placeholder="Enter email" 
-        className="Form-control" 
-        onChange={e=> setEmail(e.target.value)}/>
+        className="Form-control"  value={email}
+        onChange={(e)=> setEmail(e.target.value)}/>
       </Form.Group>
-
+{/* 
       <Form.Group className="mb-3" controlId="formBasicPassword">
         <Form.Label>Password</Form.Label>
         <Form.Control type="password" placeholder="Password"
         className="Form-control" 
         onChange={e=> setPassword(e.target.value)}/>
-      </Form.Group>
+      </Form.Group> */}
 
       <Form.Group className="mb-3" controlId="formBasicPhone">
         <Form.Label>Phone</Form.Label>
-        <Form.Control type="phone" placeholder="Phone"
-        className="Form-control" 
-        onChange={e=> setPhone(e.target.value)} />
+        <Form.Control type="phone" phone="Phone"
+        className="Form-control"  value={phone}
+        onChange={(e)=> setPhone(e.target.value)} />
       </Form.Group>
-
+{/* 
       <Form.Group className="mb-3" controlId="formBasicStatus">
-        <Form.Label>Status</Form.Label>
+        <Form.Label>Status</Form.Label> value={status}
         <Form.Control type="status" placeholder="Status"
         className="form-control" 
         onChange={e=> setStatus(e.target.value)} />
-      </Form.Group>
+      </Form.Group> */}
+
+<Form.Group className="mb-3" controlId="formBasicStatus">
+
+<div >
+<Form.Label>Status
+<Form.Control type="status" placeholder="Status"></Form.Control>
+                <select value={status} onChange={(e) => setStatus(e.target.value)}>
+                    <option value="active">active</option>
+                    <option value="in-active">inactive</option>
+                </select></Form.Label> 
+
+            </div>
+
+
+                    
+  
+  </Form.Group> 
+
+
+
 
       <Form.Group className="mb-3" controlId="formBasicType">
         <Form.Label>Type</Form.Label>
         <Form.Control type="type" placeholder="Type"
          className="form-control" 
-         onChange={e=> setType(e.target.value)}/>
+         onChange={(e)=> setType(e.target.value)}/>
       </Form.Group>
 
       
@@ -96,7 +120,7 @@ function Update_sup(){
 
         </div>
         </div>
-          
+        </div>
     )
 }
 
