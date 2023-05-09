@@ -1,10 +1,21 @@
 const router = require("express").Router();
 const db = require("../db/dbConnection.js");
+const admin = require("../middleware/admin");
 
 
-router.get('/homess', (req, res)=>{
-    const sql ="SELECT * FROM users";
-    db.query(sql, (err, result)=>{
+// router.get('/all', (req, res)=>{
+//     const sql ="SELECT * FROM users";
+//     db.query(sql, (err, data)=>{
+//         if(err) 
+//         return res.json({Massage: " error"});
+       
+//         return res.json(data);
+//     })
+// })
+
+router.get('/getuser', (req, res)=>{
+    const sqlGet ="SELECT `id`,`name`, `email`,`phone`, `warehouse_ID` FROM users";
+    db.query(sqlGet, (err, result)=>{
         if(err) 
         return res.json({Massage: " error"});
        
@@ -13,16 +24,20 @@ router.get('/homess', (req, res)=>{
 })
 
 
-router.post('/users', (req, res)=>{
-    const sql= "INSERT INTO users(`id`,`name`, `email`,`phone`, `status`, `type`) VALUES (?,?,?,?,?,?)";
+router.post('/',admin, (req, res)=>{
+    const sql= "INSERT INTO users(`name`, `email`,`phone`, `warehouse_ID' ) VALUES (?,?,?,?)";
     const values =[
         //req.body.id,
+        req.body.name,
         req.body.email,
         //req.body.token,
         req.body.phone,
-        req.body.status,
-        req.body.type,
-        req.body.name
+        req.body.warehouse_ID,
+
+
+        // req.body.status,
+        // req.body.type
+        
     ]
     db.query(sql, values , (err, result)=>{
        if(err) 
@@ -33,19 +48,8 @@ router.post('/users', (req, res)=>{
     })
 })
 
-router.get('/read/:id', (req, res)=>{
-    const sql ="SELECT * FROM users WHERE id=?";
-    const id = req.params.id;
-    db.query(sql,[id], (err, result)=>{
-        if(err) 
-        return res.json({Massage: " error"});
-       
-        return res.json(result);
-    })
-})
-
-router.put('/update/:id',(req,res)=>{
-    const sql= 'UPDATE users SET `email`=?, `password`=?,  `phone`=?, `status`=?,  `type`=?, `name`=? WHERE `id`=? ';
+router.put('/:id',(req,res)=>{
+    const sql= 'UPDATE users SET `email`=?, `password`=?,  `phone`=?, `warehouse_ID`=?, `name`=? WHERE `id`=? ';
     const id = req.params.id;
     db.query(sql, [req.body.name, req.body.email, req.body.phone, req.body.status, req.body.type, id ],
     (err, result)=>{
